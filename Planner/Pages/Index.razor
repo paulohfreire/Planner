@@ -1,0 +1,55 @@
+﻿@page "/"
+@using Planner.Model;
+@using Planner.Services
+
+<h3>Study Planner</h3>
+
+<p>Enter the subjects (type 'done' when finished):</p>
+<input @bind="subjectName" />
+<br />
+<p>Enter total study time for the subject until the end of term:</p>
+<input @bind="studyTime" type="number" />
+<br />
+<p>Enter weight (1-3) for the subject:</p>
+<input @bind="weight" type="number" />
+<br />
+<p>Enter total time you have by day:</p>
+<input @bind="hoursPerDay" type="number" />
+<br />
+<button @onclick="AddSubject">Add Subject</button>
+
+@if (studyPlan != null)
+{
+    <h4>Study Plan:</h4>
+    <ul>
+        @foreach (var pair in studyPlan)
+        {
+            <li>Subject: @pair.Key, Study Time: @pair.Value hours per day</li>
+        }
+    </ul>
+}
+
+@code {
+    private string subjectName;
+    private int studyTime;
+    private int weight;
+    private int hoursPerDay;
+    private Dictionary<string, int> studyPlan;
+
+    private StudyPlannerService studyPlannerService = new StudyPlannerService();
+
+    private async Task AddSubject()
+    {
+        Subject subject = new Subject
+            {
+                Name = subjectName,
+                StudyTime = studyTime,
+                Weight = weight,
+                HoursPerDay = hoursPerDay
+            };
+
+        await studyPlannerService.AddSubject(subject);
+
+        studyPlan = await studyPlannerService.GetStudyPlan();
+    }
+}
